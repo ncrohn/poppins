@@ -7,6 +7,6 @@ def deploy():
     with cd('/home/pi/poppins'):
         run('git pull origin master')
 
-def restart()
+def restart():
     print('Restarting...')
     run('sudo restart poppins')
