@@ -1,19 +1,28 @@
-import picamera
-from time import sleep
-from fractions import Fraction
+import socket
+import subprocess
 
-with picamera.PiCamera() as camera:
-    camera.resolution = (1280, 720)
-    # Set a framerate of 1/6fps, then set shutter
-    # speed to 6s and ISO to 800
-    camera.framerate = Fraction(1, 6)
-    camera.shutter_speed = 6000000
-    camera.exposure_mode = 'off'
-    camera.iso = 800
-    # Give the camera a good long time to measure AWB
-    # (you may wish to use fixed AWB instead)
-    sleep(10)
-    # Finally, capture an image with a 6s exposure. Due
-    # to mode switching on the still port, this will take
-    # longer than 6 seconds
-    camera.capture('dark.jpg')
+# Start a socket listening for connections on 0.0.0.0:8000 (0.0.0.0 means
+# all interfaces)
+server_socket = socket.socket()
+server_socket.bind(('0.0.0.0', 8000))
+server_socket.listen(0)
+
+# Accept a single connection and make a file-like object out of it
+connection = server_socket.accept()[0].makefile('rb')
+try:
+    # Run a viewer with an appropriate command line. Uncomment the mplayer
+    # version if you would prefer to use mplayer instead of VLC
+    cmdline = ['vlc', '--demux', 'h264', '-']
+    #cmdline = ['mplayer', '-fps', '25', '-cache', '1024', '-']
+    player = subprocess.Popen(cmdline, stdin=subprocess.PIPE)
+    while True:
+        # Repeatedly read 1k of data from the connection and write it to
+        # the media player's stdin
+        data = connection.read(1024)
+        if not data:
+            break
+        player.stdin.write(data)
+finally:
+    connection.close()
+    server_socket.close()
+    player.terminate()
