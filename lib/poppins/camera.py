@@ -14,18 +14,16 @@ class VideoCamera(object):
         # If you decide to use video.mp4, you must have this file in the folder
         # as the main.py.
         # self.video = cv2.VideoCapture('/Users/nickcrohn/Desktop/KarmiePrint.mp4')
-        with picamera.PiCamera() as camera:
-            self.__camera = camera
-            camera.start_preview()
-            time.sleep(2)
+        self.__stream = io.BytesIO()
+        self.__camera = picamera.PiCamera()
+        self.__camera.start_preview()
+        time.sleep(2)
 
     def get_frame(self):
 
-        # Create the in-memory stream
-        stream = io.BytesIO()
-        self.__camera.capture(stream, format='jpeg')
+        self.__camera.capture(self.__stream, format='jpeg')
         # Construct a numpy array from the stream
-        data = np.fromstring(stream.getvalue(), dtype=np.uint8)
+        data = np.fromstring(self.__stream.getvalue(), dtype=np.uint8)
 
         image = cv2.imdecode(data, 1)
         # We are using Motion JPEG, but OpenCV defaults to capture raw images,
