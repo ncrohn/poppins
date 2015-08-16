@@ -1,8 +1,9 @@
 # camera.py
 
-import io
+import io, time
 import picamera
 import cv2
+import numpy as np
 
 class VideoCamera(object):
     def __init__(self):
