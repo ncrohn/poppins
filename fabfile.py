@@ -1,6 +1,6 @@
 from fabric.api import cd, run, env
 
-env.hosts = ['pi@192.168.1.57']
+env.hosts = ['pi@192.168.1.22']
 
 def deploy():
     print('Deploying master...')
