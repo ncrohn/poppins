@@ -16,12 +16,13 @@ class VideoCamera(object):
         # self.video = cv2.VideoCapture('/Users/nickcrohn/Desktop/KarmiePrint.mp4')
         self.__stream = io.BytesIO()
         self.__camera = picamera.PiCamera()
-        self.__camera.start_preview()
-        time.sleep(2)
+
+    def __del__(self):
+        self.__camera.stop_recording()
 
     def get_frame(self):
 
-        self.__camera.capture(self.__stream, format='jpeg')
+        self.__camera.start_recording(self.__stream, format='h264', quality=23)
         # Construct a numpy array from the stream
         data = np.fromstring(self.__stream.getvalue(), dtype=np.uint8)
 
